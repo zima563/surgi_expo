@@ -1,3 +1,4 @@
+const { string } = require("joi");
 const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema(
@@ -16,6 +17,16 @@ const schema = new mongoose.Schema(
             required: true,
         },
         image: String,
+        description: {
+            type: String,
+            trim: true,
+            minlength: [10, "Too short name"],
+            maxlength: [255, "Too long name"],
+        },
+        parentId: {
+            type: mongoose.Types.ObjectId,
+            ref: "category"
+        }
     },
     { timestamps: true }
 );

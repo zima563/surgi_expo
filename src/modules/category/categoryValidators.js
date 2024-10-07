@@ -2,6 +2,8 @@ const Joi = require("joi");
 
 const addCategoryVal = Joi.object({
   name: Joi.string().min(2).max(100).trim().required(),
+  description: Joi.string().min(10).max(500).trim().optional(),
+  parentId: Joi.string().length(24).hex().optional(),
   image: Joi.object({
     fieldname: Joi.string().required(),
     originalname: Joi.string().required(),
@@ -24,6 +26,8 @@ const updateCategoryVal = Joi.object({
   id: Joi.string().length(24).hex(),
 
   name: Joi.string().min(2).max(20).trim(),
+  description: Joi.string().min(10).max(500).trim().optional(),
+  parentId: Joi.string().length(24).hex().optional(),
   image: Joi.object({
     fieldname: Joi.string().required(),
     originalname: Joi.string().required(),

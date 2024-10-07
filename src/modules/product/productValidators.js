@@ -3,13 +3,7 @@ const Joi = require("joi");
 const addProductVal = Joi.object({
   title: Joi.string().min(2).max(100).required().trim(),
   description: Joi.string().trim().required().min(2).max(1000),
-  quantity: Joi.number().optional().min(0),
-  price: Joi.number().required().min(0),
-  priceAfterDiscount: Joi.number().optional(),
   category: Joi.string().length(24).hex().required(),
-  subcategory: Joi.string().length(24).hex().required(),
-  brand: Joi.string().length(24).hex().required(),
-
   imgCover: Joi.array()
     .items(
       Joi.object({
@@ -54,12 +48,7 @@ const updateProductVal = Joi.object({
 
   title: Joi.string().min(2).max(100).optional().trim(),
   description: Joi.string().trim().optional().min(2).max(1000),
-  quantity: Joi.number().optional().min(0),
-  price: Joi.number().min(0),
-  priceAfterDiscount: Joi.number().optional(),
   category: Joi.string().length(24).hex(),
-  subcategory: Joi.string().length(24).hex(),
-  brand: Joi.string().length(24).hex(),
   imgCover: Joi.array().items(
     Joi.object({
       fieldname: Joi.string().required(),

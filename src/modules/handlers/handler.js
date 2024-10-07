@@ -7,7 +7,7 @@ const deleteOne = (model) => {
   return catchError(async (req, res, next) => {
     let document = await model.findByIdAndDelete(req.params.id);
     !document && next(new apiError("not document found", 404));
-    document && res.json({ msg: "success", document });
+    document && res.json(document);
   });
 };
 
@@ -21,22 +21,11 @@ const updateOne = (model) => {
     if (req.files?.images) {
       req.body.images = req.files.images.map((val) => val.filename);
     }
-    if (model == reviewModel) {
-      let document = await model.findOneAndUpdate(
-        { _id: req.params.id, user: req.user._id },
-        req.body,
-        {
-          new: true,
-        }
-      );
-      !document && next(new apiError("not document found", 404));
-      document && res.json({ msg: "success", document });
-    }
     let document = await model.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
     !document && next(new apiError("not document found", 404));
-    document && res.json({ msg: "success", document });
+    document && res.json(document);
   });
 };
 
@@ -53,19 +42,14 @@ const addOne = (model) => {
     let document = new model(req.body);
 
     await document.save();
-    res.json({ msg: "success", document });
+    res.json(document);
   });
 };
 
 const getAll = (model, modelName) => {
   return catchError(async (req, res, next) => {
-    let filterObj = {};
-    if (req.params.category) {
-      filterObj.category = req.params.category;
-    }
-
     // Apply filters, search, etc. but don't paginate yet.
-    let apiFeatures = new ApiFeatures(model.find(filterObj), req.query)
+    let apiFeatures = new ApiFeatures(model.find({ parentId: null }), req.query)
       .filter()
       .sort()
       .search(modelName)
@@ -81,7 +65,30 @@ const getAll = (model, modelName) => {
     const { mongooseQuery, paginationResult } = apiFeatures;
     let document = await mongooseQuery;
 
-    res.json({ msg: "success", paginationResult, document });
+    res.json({ paginationResult, document });
+  });
+};
+
+const getAllSubcategories = (model, modelName) => {
+  return catchError(async (req, res, next) => {
+    // Apply filters, search, etc. but don't paginate yet.
+    let apiFeatures = new ApiFeatures(model.find({ parentId: req.params.parentId }), req.query)
+      .filter()
+      .sort()
+      .search(modelName)
+      .limitedFields();
+
+    let filteredQuery = apiFeatures.mongooseQuery; // Get the filtered query
+    let countDocuments = await filteredQuery.clone().countDocuments().maxTimeMS(30000); // Use clone to reuse the query for counting
+
+    // Now paginate using the filtered count
+    apiFeatures.paginate(countDocuments); // Call paginate after getting the count
+
+    // Execute the query for the documents
+    const { mongooseQuery, paginationResult } = apiFeatures;
+    let document = await mongooseQuery;
+
+    res.json({ paginationResult, document });
   });
 };
 
@@ -89,7 +96,7 @@ const getOne = (model) => {
   return catchError(async (req, res, next) => {
     let document = await model.findById(req.params.id);
     !document && next(new apiError("not document found", 404));
-    document && res.json({ msg: "success", document });
+    document && res.json(document);
   });
 };
 
@@ -98,5 +105,6 @@ module.exports = {
   deleteOne,
   getOne,
   getAll,
+  getAllSubcategories,
   addOne
 }
