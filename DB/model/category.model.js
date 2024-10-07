@@ -36,7 +36,7 @@ schema.post("init", (doc) => {
 });
 
 schema.post("find", (doc) => {
-    if (doc.image) doc.image = process.env.BASE_URL + doc.image;
+    if (doc.image) doc.image = "https://api.surgi-expo.com/" + doc.image;
 })
 
 const categoryModel = mongoose.model("category", schema);
