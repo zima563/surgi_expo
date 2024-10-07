@@ -86,7 +86,10 @@ const getAllSubcategories = (model, modelName) => {
 
     // Execute the query for the documents
     const { mongooseQuery, paginationResult } = apiFeatures;
-    let document = await mongooseQuery;
+    let document = await mongooseQuery.populate({
+      path: 'parentId',  // The field that contains the reference to the category
+      select: 'name' // Select the fields you want to populate
+    });
 
     res.json({ paginationResult, document });
   });

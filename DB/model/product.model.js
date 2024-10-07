@@ -22,6 +22,9 @@ const schema = new mongoose.Schema(
             minlength: [2, "Too short name"],
             maxlength: [1000, "Too long name"],
         },
+        brief: {
+            type: String,
+        },
         imgCover: String,
         images: [
             {
