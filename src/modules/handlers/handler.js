@@ -16,10 +16,10 @@ const updateOne = (model) => {
     if (req.body.title) req.body.slug = slugify(req.body.title);
     if (req.body.name) req.body.slug = slugify(req.body.name);
     if (req.files?.imgCover) {
-      req.body.imgCover = req.files.imgCover[0].filename;
+      req.body.imgCover = `https://api.surgi-expo.com/${req.files.imgCover[0].filename}`;
     }
     if (req.files?.images) {
-      req.body.images = req.files.images.map((val) => val.filename);
+      req.body.images = req.files.images.map((val) => `https://api.surgi-expo.com/${val.filename}`);
     }
     let document = await model.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -34,7 +34,7 @@ const addOne = (model) => {
     if (req.body.title) req.body.slug = slugify(req.body.title);
     if (req.body.name) req.body.slug = slugify(req.body.name);
     if (req.params.category) req.body.category = req.params.category;
-    if (req.file) req.body.image = req.file.filename;
+    if (req.file) req.body.image = process.env.BASE_URL + req.file.filename;
 
     if (req.files?.imgCover) req.body.imgCover = req.files.imgCover[0].filename;
     if (req.files?.images)
