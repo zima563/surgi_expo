@@ -35,6 +35,10 @@ schema.post("init", (doc) => {
     if (doc.image) doc.image = process.env.BASE_URL + doc.image;
 });
 
+schema.post("find", (doc) => {
+    if (doc.image) doc.image = process.env.BASE_URL + doc.image;
+})
+
 const categoryModel = mongoose.model("category", schema);
 
 module.exports = categoryModel;
