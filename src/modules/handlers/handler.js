@@ -65,7 +65,7 @@ const getAll = (model, modelName) => {
     const { mongooseQuery, paginationResult } = apiFeatures;
     let document = await mongooseQuery;
 
-    res.json({ paginationResult, document });
+    res.json({ countDocuments, paginationResult, document });
   });
 };
 
