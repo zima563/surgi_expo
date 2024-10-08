@@ -91,7 +91,7 @@ const getAllSubcategories = (model, modelName) => {
       select: 'name' // Select the fields you want to populate
     });
 
-    res.json({ paginationResult, document });
+    res.json({ countDocuments, paginationResult, document });
   });
 };
 
