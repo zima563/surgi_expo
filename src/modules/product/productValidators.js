@@ -36,8 +36,7 @@ const addProductVal = Joi.object({
         path: Joi.string().required(),
         size: Joi.number().max(5242880).required(),
       })
-    )
-    .required(),
+    ),
 });
 
 const paramsVal = Joi.object({
