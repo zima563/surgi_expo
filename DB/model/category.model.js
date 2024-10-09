@@ -31,6 +31,13 @@ const schema = new mongoose.Schema(
     { timestamps: true }
 );
 
+schema.pre("findOne", function () {
+    this.populate("parentId");
+});
+
+schema.pre("find", function () {
+    this.populate("parentId");
+});
 
 const categoryModel = mongoose.model("category", schema);
 
