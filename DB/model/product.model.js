@@ -54,6 +54,14 @@ schema.pre("findOne", function () {
 schema.pre("find", function () {
     this.populate("category");
 });
+
+schema.pre("findOne", function () {
+    this.populate("category.parentId");
+});
+
+schema.pre("find", function () {
+    this.populate("category.parentId");
+});
 const productModel = mongoose.model("product", schema);
 
 module.exports = productModel;
