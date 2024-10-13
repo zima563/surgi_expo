@@ -17,7 +17,7 @@ const addProductVal = Joi.object({
         destination: Joi.string().required(),
         filename: Joi.string().required(),
         path: Joi.string().required(),
-        size: Joi.number().max(5242880).required(),
+        size: Joi.number().required(),
       })
     )
     .required(),
@@ -34,7 +34,7 @@ const addProductVal = Joi.object({
         destination: Joi.string().required(),
         filename: Joi.string().required(),
         path: Joi.string().required(),
-        size: Joi.number().max(5242880).required(),
+        size: Joi.number().required(),
       })
     ),
 });
@@ -61,7 +61,7 @@ const updateProductVal = Joi.object({
       destination: Joi.string().required(),
       filename: Joi.string().required(),
       path: Joi.string().required(),
-      size: Joi.number().max(5242880).required(),
+      size: Joi.number().required(),
     })
   ),
 
@@ -76,7 +76,7 @@ const updateProductVal = Joi.object({
       destination: Joi.string().required(),
       filename: Joi.string().required(),
       path: Joi.string().required(),
-      size: Joi.number().max(5242880).required(),
+      size: Joi.number().required(),
     })
   ),
 });
