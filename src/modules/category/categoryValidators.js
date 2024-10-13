@@ -14,7 +14,7 @@ const addCategoryVal = Joi.object({
     destination: Joi.string().required(),
     filename: Joi.string().required(),
     path: Joi.string().required(),
-    size: Joi.number().max(5242880).required(),
+    size: Joi.number().required(),
   }).required(),
 });
 
