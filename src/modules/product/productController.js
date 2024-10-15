@@ -6,15 +6,15 @@ const { addOne, getOne, updateOne, deleteOne } = require("../handlers/handler");
 const addProduct = addOne(productModel);
 
 const getProducts = catchError(async (req, res, next) => {
-    const redisKey = `products:${JSON.stringify(req.query)}`; // Generate a unique key based on query parameters
+    // const redisKey = `products:${JSON.stringify(req.query)}`; // Generate a unique key based on query parameters
 
-    // Check if data exists in Redis cache
-    let cachedData = await redisClient.get(redisKey);
+    // // Check if data exists in Redis cache
+    // let cachedData = await redisClient.get(redisKey);
 
-    if (cachedData) {
-        // If cached data exists, return it
-        return res.json(JSON.parse(cachedData));
-    }
+    // if (cachedData) {
+    //     // If cached data exists, return it
+    //     return res.json(JSON.parse(cachedData));
+    // }
 
     // Apply filters, search, etc., but don't paginate yet
     let apiFeatures = new ApiFeatures(productModel.find({ parentId: null }), req.query)
@@ -36,7 +36,7 @@ const getProducts = catchError(async (req, res, next) => {
     const response = { countDocuments, paginationResult, categories };
 
     // Store the response in Redis cache with a TTL (Time To Live) of 1 hour
-    await redisClient.set(redisKey, JSON.stringify(response), 'EX', 3600); // 3600 seconds = 1 hour
+    // await redisClient.set(redisKey, JSON.stringify(response), 'EX', 3600); // 3600 seconds = 1 hour
 
     res.json(response);
 });
