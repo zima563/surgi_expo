@@ -31,9 +31,9 @@ const getProducts = catchError(async (req, res, next) => {
 
     // Execute the query for the documents
     const { mongooseQuery, paginationResult } = apiFeatures;
-    let categories = await mongooseQuery;
+    let products = await mongooseQuery;
 
-    const response = { countDocuments, paginationResult, categories };
+    const response = { countDocuments, paginationResult, products };
 
     // Store the response in Redis cache with a TTL (Time To Live) of 1 hour
     // await redisClient.set(redisKey, JSON.stringify(response), 'EX', 3600); // 3600 seconds = 1 hour
