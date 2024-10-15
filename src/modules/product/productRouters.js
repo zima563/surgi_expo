@@ -9,9 +9,9 @@ const validation = require("../../middlewares/validation.js");
 const {
   addProduct,
   getProduct,
-  getProducts,
   updateProduct,
   deleteProduct,
+  getProducts,
 } = require("./productController.js");
 const { uploadFieldsOfFiles } = require("../../services/fileUpload/upload.js");
 const { protectRoutes } = require("../user/user.controller.js");

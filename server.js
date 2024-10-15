@@ -3,9 +3,11 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const dbConnection = require('./DB/dbConnection');
 const { bootstrap } = require('./src/index.routes');
+const { login } = require('./src/modules/user/user.controller');
 
 const app = express()
 const port = 3000
+
 
 dotenv.config();
 

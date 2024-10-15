@@ -1,7 +1,6 @@
 const slugify = require("slugify");
 const catchError = require("../../middlewares/catchError");
 const apiError = require("../../utils/apiError");
-const ApiFeatures = require("../../utils/apiFeatures");
 
 const deleteOne = (model) => {
   return catchError(async (req, res, next) => {
@@ -46,54 +45,54 @@ const addOne = (model) => {
   });
 };
 
-const getAll = (model, modelName) => {
-  return catchError(async (req, res, next) => {
-    // Apply filters, search, etc. but don't paginate yet.
-    let apiFeatures = new ApiFeatures(model.find({ parentId: null }), req.query)
-      .filter()
-      .sort()
-      .search(modelName)
-      .limitedFields();
+// const getAll = (model, modelName) => {
+//   return catchError(async (req, res, next) => {
+//     // Apply filters, search, etc. but don't paginate yet.
+//     let apiFeatures = new ApiFeatures(model.find({ parentId: null }), req.query)
+//       .filter()
+//       .sort()
+//       .search(modelName)
+//       .limitedFields();
 
-    let filteredQuery = apiFeatures.mongooseQuery; // Get the filtered query
-    let countDocuments = await filteredQuery.clone().countDocuments().maxTimeMS(30000); // Use clone to reuse the query for counting
+//     let filteredQuery = apiFeatures.mongooseQuery; // Get the filtered query
+//     let countDocuments = await filteredQuery.clone().countDocuments().maxTimeMS(30000); // Use clone to reuse the query for counting
 
-    // Now paginate using the filtered count
-    apiFeatures.paginate(countDocuments); // Call paginate after getting the count
+//     // Now paginate using the filtered count
+//     apiFeatures.paginate(countDocuments); // Call paginate after getting the count
 
-    // Execute the query for the documents
-    const { mongooseQuery, paginationResult } = apiFeatures;
-    let document = await mongooseQuery;
+//     // Execute the query for the documents
+//     const { mongooseQuery, paginationResult } = apiFeatures;
+//     let document = await mongooseQuery;
 
-    res.json({ countDocuments, paginationResult, document });
-  });
-};
+//     res.json({ countDocuments, paginationResult, document });
+//   });
+// };
 
-const getAllSubcategories = (model, modelName) => {
-  return catchError(async (req, res, next) => {
-    // Apply filters, search, etc. but don't paginate yet.
-    let apiFeatures = new ApiFeatures(model.find({ parentId: req.params.parentId }), req.query)
-      .filter()
-      .sort()
-      .search(modelName)
-      .limitedFields();
+// const getAllSubcategories = (model, modelName) => {
+//   return catchError(async (req, res, next) => {
+//     // Apply filters, search, etc. but don't paginate yet.
+//     let apiFeatures = new ApiFeatures(model.find({ parentId: req.params.parentId }), req.query)
+//       .filter()
+//       .sort()
+//       .search(modelName)
+//       .limitedFields();
 
-    let filteredQuery = apiFeatures.mongooseQuery; // Get the filtered query
-    let countDocuments = await filteredQuery.clone().countDocuments().maxTimeMS(30000); // Use clone to reuse the query for counting
+//     let filteredQuery = apiFeatures.mongooseQuery; // Get the filtered query
+//     let countDocuments = await filteredQuery.clone().countDocuments().maxTimeMS(30000); // Use clone to reuse the query for counting
 
-    // Now paginate using the filtered count
-    apiFeatures.paginate(countDocuments); // Call paginate after getting the count
+//     // Now paginate using the filtered count
+//     apiFeatures.paginate(countDocuments); // Call paginate after getting the count
 
-    // Execute the query for the documents
-    const { mongooseQuery, paginationResult } = apiFeatures;
-    let document = await mongooseQuery.populate({
-      path: 'parentId',  // The field that contains the reference to the category
-      select: 'name' // Select the fields you want to populate
-    });
+//     // Execute the query for the documents
+//     const { mongooseQuery, paginationResult } = apiFeatures;
+//     let document = await mongooseQuery.populate({
+//       path: 'parentId',  // The field that contains the reference to the category
+//       select: 'name' // Select the fields you want to populate
+//     });
 
-    res.json({ countDocuments, paginationResult, document });
-  });
-};
+//     res.json({ countDocuments, paginationResult, document });
+//   });
+// };
 
 const getOne = (model) => {
   return catchError(async (req, res, next) => {
@@ -107,7 +106,7 @@ module.exports = {
   updateOne,
   deleteOne,
   getOne,
-  getAll,
-  getAllSubcategories,
+  // getAll,
+  // getAllSubcategories,
   addOne
 }
