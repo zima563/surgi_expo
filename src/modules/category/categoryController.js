@@ -1,5 +1,5 @@
 const categoryModel = require("../../../DB/model/category.model");
-const redisClient = require("../../../DB/redis");
+// const redisClient = require("../../../DB/redis");
 const catchError = require("../../middlewares/catchError");
 const ApiFeatures = require("../../utils/apiFeatures");
 const { addOne, getOne, updateOne, deleteOne } = require("../handlers/handler");
@@ -20,7 +20,7 @@ const getCategories = catchError(async (req, res, next) => {
   // Apply filters, search, etc., but don't paginate yet
   let apiFeatures = new ApiFeatures(categoryModel.find({ parentId: null }), req.query)
     .filter()
-    .sort()
+    .sort({ createdAt: -1 })
     .search("category")
     .limitedFields();
 
@@ -56,7 +56,7 @@ const getSubCategories = catchError(async (req, res, next) => {
   // Apply filters, search, etc., but don't paginate yet
   let apiFeatures = new ApiFeatures(categoryModel.find({ parentId: req.params.parentId }), req.query)
     .filter()
-    .sort()
+    .sort({ createdAt: -1 })
     .search("category")
     .limitedFields();
 
