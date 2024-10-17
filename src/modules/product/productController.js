@@ -20,7 +20,7 @@ const getProducts = catchError(async (req, res, next) => {
     // Apply filters, search, etc., but don't paginate yet
     let apiFeatures = new ApiFeatures(productModel.find({ parentId: null }), req.query)
         .filter()
-        .sort({ createdAt: -1 })
+        .sort()
         .search("category")
         .limitedFields();
 

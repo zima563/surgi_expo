@@ -32,7 +32,7 @@ class ApiFeatures {
       let sortBy = this.searchQuery.sort.split(",").join(" ");
       this.mongooseQuery.sort(sortBy);
     } else {
-      this.mongooseQuery = this.mongooseQuery.sort("-createAt");
+      this.mongooseQuery = this.mongooseQuery.sort({ createdAt: 1 });
     }
     return this;
   }
