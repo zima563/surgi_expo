@@ -33,7 +33,10 @@ const getCategories = catchError(async (req, res, next) => {
   // Execute the query for the documents
   const { mongooseQuery, paginationResult } = apiFeatures;
   let categories = await mongooseQuery;
-
+  categories = categories.map(category => {
+    category.image = process.env.MEDIA_BASE_URL + category.image;
+    return category;
+  })
   const response = { countDocuments, paginationResult, categories };
 
   // Store the response in Redis cache with a TTL (Time To Live) of 1 hour
@@ -69,7 +72,10 @@ const getSubCategories = catchError(async (req, res, next) => {
   // Execute the query for the documents
   const { mongooseQuery, paginationResult } = apiFeatures;
   let categories = await mongooseQuery;
-
+  categories = categories.map(category => {
+    category.image = process.env.MEDIA_BASE_URL + category.image;
+    return category;
+  })
   // Create the response object
   const response = { countDocuments, paginationResult, categories };
 

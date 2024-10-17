@@ -2,6 +2,7 @@ const productModel = require("../../../DB/model/product.model");
 const catchError = require("../../middlewares/catchError");
 const ApiFeatures = require("../../utils/apiFeatures");
 const { addOne, getOne, updateOne, deleteOne } = require("../handlers/handler");
+const { protectRoutes } = require("../user/user.controller");
 
 const addProduct = addOne(productModel);
 
@@ -32,6 +33,13 @@ const getProducts = catchError(async (req, res, next) => {
     // Execute the query for the documents
     const { mongooseQuery, paginationResult } = apiFeatures;
     let products = await mongooseQuery;
+    products = products.map(product => {
+        product.imgCover = process.env.MEDIA_BASE_URL + product.imgCover;
+        product.images.map(img => {
+            return process.env.MEDIA_BASE_URL + img;
+        })
+        return product;
+    })
 
     const response = { countDocuments, paginationResult, products };
 

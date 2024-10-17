@@ -21,25 +21,11 @@ const updateOne = (model) => {
   return catchError(async (req, res, next) => {
     if (req.body.title) req.body.slug = slugify(req.body.title);
     if (req.body.name) req.body.slug = slugify(req.body.name);
-    // Upload single image file to Cloudinary
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path);
-      req.body.image = result.secure_url; // Save the Cloudinary URL
-    }
-
-    // Upload cover image to Cloudinary if provided
     if (req.files?.imgCover) {
-      const coverResult = await cloudinary.uploader.upload(req.files.imgCover[0].path);
-      req.body.imgCover = coverResult.secure_url; // Save the Cloudinary URL
+      req.body.imgCover = req.files.imgCover[0].filename
     }
-
-    // Upload multiple images to Cloudinary if provided
     if (req.files?.images) {
-      const imageUploadPromises = req.files.images.map((file) =>
-        cloudinary.uploader.upload(file.path)
-      );
-      const imageResults = await Promise.all(imageUploadPromises);
-      req.body.images = imageResults.map((result) => result.secure_url); // Save the Cloudinary URLs
+      req.body.images = req.files.images.map((val) => val.filename);
     }
     let document = await model.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -54,26 +40,11 @@ const addOne = (model) => {
     if (req.body.title) req.body.slug = slugify(req.body.title);
     if (req.body.name) req.body.slug = slugify(req.body.name);
     if (req.params.category) req.body.category = req.params.category;
-    // Upload single image file to Cloudinary
-    if (req.file) {
-      const result = await cloudinary.uploader.upload(req.file.path);
-      req.body.image = result.secure_url; // Save the Cloudinary URL
-    }
+    if (req.file) req.body.image = req.file.filename;
 
-    // Upload cover image to Cloudinary if provided
-    if (req.files?.imgCover) {
-      const coverResult = await cloudinary.uploader.upload(req.files.imgCover[0].path);
-      req.body.imgCover = coverResult.secure_url; // Save the Cloudinary URL
-    }
-
-    // Upload multiple images to Cloudinary if provided
-    if (req.files?.images) {
-      const imageUploadPromises = req.files.images.map((file) =>
-        cloudinary.uploader.upload(file.path)
-      );
-      const imageResults = await Promise.all(imageUploadPromises);
-      req.body.images = imageResults.map((result) => result.secure_url); // Save the Cloudinary URLs
-    }
+    if (req.files?.imgCover) req.body.imgCover = req.files.imgCover[0].filename;
+    if (req.files?.images)
+      req.body.images = req.files.images.map((val) => val.filename);
     let document = new model(req.body);
 
     await document.save();

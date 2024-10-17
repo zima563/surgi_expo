@@ -66,6 +66,7 @@ class ApiFeatures {
     }
     return this;
   }
+
   paginate(countDocuments) {
     const page = this.searchQuery.page * 1 || 1;
     const limit = this.searchQuery.limit * 1 || 50;
