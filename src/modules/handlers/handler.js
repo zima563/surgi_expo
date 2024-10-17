@@ -22,7 +22,7 @@ const updateOne = (model) => {
   return catchError(async (req, res, next) => {
     if (req.body.title) req.body.slug = slugify(req.body.title);
     if (req.body.name) req.body.slug = slugify(req.body.name);
-    if (req.file) {
+    if (req.file && req.file.buffer) {
       const compressedImageBuffer = await sharp(req.file.buffer)
         .jpeg({ quality: 70 }) // Adjust quality to reduce size, keeping around ~100 KB
         .toBuffer();
@@ -31,7 +31,7 @@ const updateOne = (model) => {
       req.body.image = req.file.filename;
     }
 
-    if (req.files?.imgCover) {
+    if (req.files?.imgCover && req.files.imgCover[0].buffer) {
       const compressedImgCoverBuffer = await sharp(req.files.imgCover[0].buffer)
         .jpeg({ quality: 70 }) // Compress imgCover to ~100 KB
         .toBuffer();
@@ -64,7 +64,7 @@ const addOne = (model) => {
     if (req.body.title) req.body.slug = slugify(req.body.title);
     if (req.body.name) req.body.slug = slugify(req.body.name);
     if (req.params.category) req.body.category = req.params.category;
-    if (req.file) {
+    if (req.file && req.file.buffer) {
       const compressedImageBuffer = await sharp(req.file.buffer)
         .jpeg({ quality: 70 }) // Adjust quality to reduce size, keeping around ~100 KB
         .toBuffer();
@@ -73,7 +73,7 @@ const addOne = (model) => {
       req.body.image = req.file.filename;
     }
 
-    if (req.files?.imgCover) {
+    if (req.files?.imgCover && req.files.imgCover[0].buffer) {
       const compressedImgCoverBuffer = await sharp(req.files.imgCover[0].buffer)
         .jpeg({ quality: 70 }) // Compress imgCover to ~100 KB
         .toBuffer();
