@@ -4,7 +4,8 @@ const apiError = require("../../utils/apiError");
 const cloudinary = require("cloudinary")
 const fs = require('fs');
 const path = require('path');
-const sharp = require("sharp")
+const sharp = require("sharp");
+const { v4: uuidv4 } = require('uuid');
 
 cloudinary.config({
   cloud_name: "dnrfbxmc3",
@@ -41,7 +42,7 @@ const updateOne = (model) => {
         .replace(/\s+/g, '_')          // Replace spaces with underscores
         .replace(/[^a-zA-Z0-9_.]/g, ''); // Remove all special characters except letters, numbers, underscores, and dots
 
-      const resizedFilename = encodeURIComponent(cleanedFilename);
+      const resizedFilename = uuidv4() + encodeURIComponent(cleanedFilename);
       // Define the path to save the processed image
       const imagePath = path.join('uploads/', resizedFilename);
 
@@ -67,8 +68,8 @@ const updateOne = (model) => {
         .replace(/\s+/g, '_')          // Replace spaces with underscores
         .replace(/[^a-zA-Z0-9_.]/g, ''); // Remove all special characters except letters, numbers, underscores, and dots
 
-      const resizedFilename = encodeURIComponent(cleanedFilename);
-      const imgCoverPath = path.join('uploads/', `cover-${resizedFilename}`);
+      const resizedFilename = "cover-" + uuidv4() + encodeURIComponent(cleanedFilename);
+      const imgCoverPath = path.join('uploads/', resizedFilename);
 
       await sharp(req.files.imgCover[0].buffer)
         .resize(800)
@@ -99,7 +100,7 @@ const updateOne = (model) => {
             .replace(/\s+/g, '_')          // Replace spaces with underscores
             .replace(/[^a-zA-Z0-9_.]/g, ''); // Remove all special characters except letters, numbers, underscores, and dots
 
-          const resizedFilename = encodeURIComponent(cleanedFilename);
+          const resizedFilename = "images-" + uuidv4() + encodeURIComponent(cleanedFilename);
           const imgPath = path.join('uploads/', `image-${resizedFilename}`);
 
           // Process each image
