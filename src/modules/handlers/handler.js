@@ -36,8 +36,14 @@ const updateOne = (model) => {
     };
     // Process single image
     if (req.file) {
+      // Clean up filename by replacing spaces with underscores (optional)
+      let cleanedFilename = file.originalname
+        .replace(/\s+/g, '_')          // Replace spaces with underscores
+        .replace(/[^a-zA-Z0-9_.]/g, ''); // Remove all special characters except letters, numbers, underscores, and dots
+
+      const resizedFilename = encodeURIComponent(cleanedFilename);
       // Define the path to save the processed image
-      const imagePath = path.join('uploads/', `resized-${Date.now()}-${req.file.originalname}`);
+      const imagePath = path.join('uploads/', resizedFilename);
 
       // Use Sharp to resize and reduce quality
       await sharp(req.file.buffer)
@@ -50,12 +56,19 @@ const updateOne = (model) => {
         deleteFile(path.join('uploads/', document.image));
       }
       // Save the filename to the database
-      req.body.image = path.basename(imagePath);
+      req.body.image = resizedFilename;
     }
 
     // Process multiple images (imgCover and images arrays)
     if (req.files?.imgCover) {
-      const imgCoverPath = path.join('uploads/', `cover-${Date.now()}-${req.files.imgCover[0].originalname}`);
+
+      // Clean up filename by replacing spaces with underscores (optional)
+      let cleanedFilename = file.originalname
+        .replace(/\s+/g, '_')          // Replace spaces with underscores
+        .replace(/[^a-zA-Z0-9_.]/g, ''); // Remove all special characters except letters, numbers, underscores, and dots
+
+      const resizedFilename = encodeURIComponent(cleanedFilename);
+      const imgCoverPath = path.join('uploads/', `cover-${resizedFilename}`);
 
       await sharp(req.files.imgCover[0].buffer)
         .resize(800)
@@ -67,7 +80,7 @@ const updateOne = (model) => {
         deleteFile(path.join('uploads/', document.imgCover));
       }
 
-      req.body.imgCover = path.basename(imgCoverPath);
+      req.body.imgCover = resizedFilename;
     }
 
     if (req.files?.images) {
@@ -80,7 +93,14 @@ const updateOne = (model) => {
       }
       req.body.images = await Promise.all(
         req.files.images.map(async (file) => {
-          const imgPath = path.join('uploads/', `image-${Date.now()}-${file.originalname}`);
+
+          // Clean up filename by replacing spaces with underscores (optional)
+          let cleanedFilename = file.originalname
+            .replace(/\s+/g, '_')          // Replace spaces with underscores
+            .replace(/[^a-zA-Z0-9_.]/g, ''); // Remove all special characters except letters, numbers, underscores, and dots
+
+          const resizedFilename = encodeURIComponent(cleanedFilename);
+          const imgPath = path.join('uploads/', `image-${resizedFilename}`);
 
           // Process each image
           await sharp(file.buffer)
@@ -88,7 +108,7 @@ const updateOne = (model) => {
             .jpeg({ quality: 60 })
             .toFile(imgPath);
 
-          return path.basename(imgPath);
+          return resizedFilename;
         })
       );
     }
