@@ -14,9 +14,10 @@ const addProductVal = Joi.object({
         mimetype: Joi.string()
           .valid("image/png", "image/jpg", "image/jpeg")
           .required(),
-        destination: Joi.string().required(),
-        filename: Joi.string().required(),
-        path: Joi.string().required(),
+        // destination: Joi.string().required(),
+        // filename: Joi.string().required(),
+        // path: Joi.string().required(),
+        buffer: Joi.any(),
         size: Joi.number().required(),
       })
     )
@@ -31,9 +32,10 @@ const addProductVal = Joi.object({
         mimetype: Joi.string()
           .valid("image/png", "image/jpg", "image/jpeg")
           .required(),
-        destination: Joi.string().required(),
-        filename: Joi.string().required(),
-        path: Joi.string().required(),
+        // destination: Joi.string().required(),
+        // filename: Joi.string().required(),
+        // path: Joi.string().required(),
+        buffer: Joi.any(),
         size: Joi.number().required(),
       })
     ),
@@ -58,9 +60,10 @@ const updateProductVal = Joi.object({
       mimetype: Joi.string()
         .valid("image/png", "image/jpg", "image/jpeg")
         .required(),
-      destination: Joi.string().required(),
-      filename: Joi.string().required(),
-      path: Joi.string().required(),
+      // destination: Joi.string().required(),
+      // filename: Joi.string().required(),
+      // path: Joi.string().required(),
+      buffer: Joi.any(),
       size: Joi.number().required(),
     })
   ),
