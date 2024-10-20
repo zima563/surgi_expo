@@ -20,16 +20,25 @@ const reduceImageQuality = async () => {
         // Process each image file
         for (const file of imageFiles) {
             const filePath = path.join(uploadsDir, file);
+            const tempFilePath = filePath + '.tmp'; // Create a temporary file path
 
             try {
-                // Use Sharp to read, reduce quality, and overwrite the file
+                // Use Sharp to read, reduce quality, and write to a temporary file first
                 await sharp(filePath)
                     .jpeg({ quality: 60 })  // Reduce JPEG quality to 60%
-                    .toFile(filePath);      // Overwrite the original file
+                    .toFile(tempFilePath);  // Write to the temporary file
+
+                // After processing, rename the temporary file to the original file (overwrite it)
+                fs.renameSync(tempFilePath, filePath);
 
                 console.log(`Processed and reduced quality of: ${file}`);
             } catch (error) {
                 console.error(`Error processing ${file}:`, error);
+
+                // Remove the temp file in case of error
+                if (fs.existsSync(tempFilePath)) {
+                    fs.unlinkSync(tempFilePath);
+                }
             }
         }
 
