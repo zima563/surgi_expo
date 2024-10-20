@@ -39,12 +39,12 @@ const schema = new mongoose.Schema(
     { timestamps: true }
 );
 
-// schema.post("init", (doc) => {
-//     if (doc.imgCover || doc.images) {
-//         doc.imgCover = process.env.BASE_URL + doc.imgCover;
-//         doc.images = doc.images?.map((val) => process.env.BASE_URL + val);
-//     }
-// });
+schema.post("findOne", (doc) => {
+    if (doc.imgCover || doc.images) {
+        doc.imgCover = process.env.MEDIA_BASE_URL + doc.imgCover;
+        doc.images = doc.images?.map((val) => process.env.MEDIA_BASE_URL + val);
+    }
+});
 
 
 schema.pre("findOne", function () {
