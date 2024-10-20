@@ -4,6 +4,7 @@ const apiError = require("../../utils/apiError");
 const cloudinary = require("cloudinary")
 const fs = require('fs');
 const path = require('path');
+const sharp = require("sharp")
 
 cloudinary.config({
   cloud_name: "dnrfbxmc3",
