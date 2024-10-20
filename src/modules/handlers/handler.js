@@ -37,7 +37,7 @@ const updateOne = (model) => {
     // Process single image
     if (req.file) {
       // Clean up filename by replacing spaces with underscores (optional)
-      let cleanedFilename = file.originalname
+      let cleanedFilename = req.file.originalname
         .replace(/\s+/g, '_')          // Replace spaces with underscores
         .replace(/[^a-zA-Z0-9_.]/g, ''); // Remove all special characters except letters, numbers, underscores, and dots
 
@@ -63,7 +63,7 @@ const updateOne = (model) => {
     if (req.files?.imgCover) {
 
       // Clean up filename by replacing spaces with underscores (optional)
-      let cleanedFilename = file.originalname
+      let cleanedFilename = req.files.imgCover[0].originalname
         .replace(/\s+/g, '_')          // Replace spaces with underscores
         .replace(/[^a-zA-Z0-9_.]/g, ''); // Remove all special characters except letters, numbers, underscores, and dots
 
