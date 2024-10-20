@@ -33,8 +33,6 @@ const updateOne = (model) => {
     };
     // Process single image
     if (req.file) {
-      console.log(req.file);
-
       // Define the path to save the processed image
       const imagePath = path.join('uploads/', `resized-${Date.now()}-${req.file.originalname}`);
 
@@ -44,6 +42,10 @@ const updateOne = (model) => {
         .jpeg({ quality: 60 }) // Reduce quality to 60%
         .toFile(imagePath); // Save the processed image
 
+      // Delete the old image if it exists
+      if (document.image) {
+        deleteFile(path.join('uploads/', document.image));
+      }
       // Save the filename to the database
       req.body.image = path.basename(imagePath);
     }
@@ -57,10 +59,22 @@ const updateOne = (model) => {
         .jpeg({ quality: 60 })
         .toFile(imgCoverPath);
 
+      // Delete the old imgCover if it exists
+      if (document.imgCover) {
+        deleteFile(path.join('uploads/', document.imgCover));
+      }
+
       req.body.imgCover = path.basename(imgCoverPath);
     }
 
     if (req.files?.images) {
+
+      // Delete old images if they exist
+      if (document.images && document.images.length > 0) {
+        document.images.forEach((img) => {
+          deleteFile(path.join('uploads/', img));
+        });
+      }
       req.body.images = await Promise.all(
         req.files.images.map(async (file) => {
           const imgPath = path.join('uploads/', `image-${Date.now()}-${file.originalname}`);
@@ -91,7 +105,7 @@ const addOne = (model) => {
 
     // Process single image
     if (req.file) {
-      console.log(req.file);
+
 
       // Define the path to save the processed image
       const imagePath = path.join('uploads/', `resized-${Date.now()}-${req.file.originalname}`);
