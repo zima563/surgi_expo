@@ -39,7 +39,7 @@ const schema = new mongoose.Schema(
     { timestamps: true }
 );
 
-schema.post("findOne", (doc) => {
+schema.post(/^find/, (doc) => {
     if (doc.imgCover || doc.images) {
         doc.imgCover = process.env.MEDIA_BASE_URL + doc.imgCover;
         doc.images = doc.images?.map((val) => process.env.MEDIA_BASE_URL + val);
