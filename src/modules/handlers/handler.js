@@ -2,6 +2,8 @@ const slugify = require("slugify");
 const catchError = require("../../middlewares/catchError");
 const apiError = require("../../utils/apiError");
 const cloudinary = require("cloudinary")
+const fs = require('fs');
+const path = require('path');
 
 cloudinary.config({
   cloud_name: "dnrfbxmc3",
