@@ -1,31 +1,10 @@
-const multer = require("multer");
-const { v4: uuidv4 } = require('uuid');
-const apiError = require("../../utils/apiError.js");
+const multer = require('multer');
 
-const fileUpload = () => {
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, "uploads/");
-    },
-    filename: (req, file, cb) => {
-      cb(null, uuidv4() + "-" + file.originalname);
-    },
-  });
+// Setup multer to store files in memory
+const storage = multer.memoryStorage();
 
-  const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith("image")) {
-      cb(null, true);
-    } else {
-      cb(new apiError("only image allowed", 401));
-    }
-  };
+const upload = multer({ storage: storage });
 
-  const upload = multer({ storage });
-
-  return upload;
-};
-
-exports.uploadSingleFile = (fieldname) => fileUpload().single(fieldname);
-exports.uploadArrayOfFiles = (fieldname) =>
-  fileUpload().array(fieldname, 10);
-exports.uploadFieldsOfFiles = (fields) => fileUpload().fields(fields);
+exports.uploadSingleFile = (fieldname) => upload.single(fieldname);
+exports.uploadArrayOfFiles = (fieldname) => upload.array(fieldname, 10);
+exports.uploadFieldsOfFiles = (fields) => upload.fields(fields);
