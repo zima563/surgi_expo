@@ -1,17 +1,11 @@
 const slugify = require("slugify");
 const catchError = require("../../middlewares/catchError");
 const apiError = require("../../utils/apiError");
-const cloudinary = require("cloudinary")
 const fs = require('fs');
 const path = require('path');
 const sharp = require("sharp");
 const { v4: uuidv4 } = require('uuid');
 
-cloudinary.config({
-  cloud_name: "dnrfbxmc3",
-  api_key: "518374656112347",
-  api_secret: "_zgNFNuYi5CfkrW53NQ059sh-KA",
-});
 
 const deleteOne = (model) => {
   return catchError(async (req, res, next) => {
@@ -129,10 +123,15 @@ const addOne = (model) => {
 
     // Process single image
     if (req.file) {
+      // Clean up filename by replacing spaces with underscores (optional)
+      let cleanedFilename = req.file.originalname
+        .replace(/\s+/g, '_')          // Replace spaces with underscores
+        .replace(/[^a-zA-Z0-9_.]/g, ''); // Remove all special characters except letters, numbers, underscores, and dots
 
+      const resizedFilename = uuidv4() + encodeURIComponent(cleanedFilename);
 
       // Define the path to save the processed image
-      const imagePath = path.join('uploads/', `resized-${Date.now()}-${req.file.originalname}`);
+      const imagePath = path.join('uploads/', resizedFilename);
 
       // Use Sharp to resize and reduce quality
       await sharp(req.file.buffer)
@@ -141,25 +140,38 @@ const addOne = (model) => {
         .toFile(imagePath); // Save the processed image
 
       // Save the filename to the database
-      req.body.image = path.basename(imagePath);
+      req.body.image = resizedFilename;
     }
 
     // Process multiple images (imgCover and images arrays)
     if (req.files?.imgCover) {
-      const imgCoverPath = path.join('uploads/', `cover-${Date.now()}-${req.files.imgCover[0].originalname}`);
+
+      // Clean up filename by replacing spaces with underscores (optional)
+      let cleanedFilename = req.files.imgCover[0].originalname
+        .replace(/\s+/g, '_')          // Replace spaces with underscores
+        .replace(/[^a-zA-Z0-9_.]/g, ''); // Remove all special characters except letters, numbers, underscores, and dots
+
+      const resizedFilename = "cover-" + uuidv4() + encodeURIComponent(cleanedFilename);
+      const imgCoverPath = path.join('uploads/', resizedFilename);
 
       await sharp(req.files.imgCover[0].buffer)
         .resize(800)
         .jpeg({ quality: 60 })
         .toFile(imgCoverPath);
 
-      req.body.imgCover = path.basename(imgCoverPath);
+      req.body.imgCover = resizedFilename;
     }
 
     if (req.files?.images) {
       req.body.images = await Promise.all(
         req.files.images.map(async (file) => {
-          const imgPath = path.join('uploads/', `image-${Date.now()}-${file.originalname}`);
+          // Clean up filename by replacing spaces with underscores (optional)
+          let cleanedFilename = file.originalname
+            .replace(/\s+/g, '_')          // Replace spaces with underscores
+            .replace(/[^a-zA-Z0-9_.]/g, ''); // Remove all special characters except letters, numbers, underscores, and dots
+
+          const resizedFilename = "images-" + uuidv4() + encodeURIComponent(cleanedFilename);
+          const imgPath = path.join('uploads/', `image-${resizedFilename}`);
 
           // Process each image
           await sharp(file.buffer)
@@ -167,7 +179,7 @@ const addOne = (model) => {
             .jpeg({ quality: 60 })
             .toFile(imgPath);
 
-          return path.basename(imgPath);
+          return resizedFilename;
         })
       );
     }
@@ -176,54 +188,6 @@ const addOne = (model) => {
   });
 };
 
-// const getAll = (model, modelName) => {
-//   return catchError(async (req, res, next) => {
-//     // Apply filters, search, etc. but don't paginate yet.
-//     let apiFeatures = new ApiFeatures(model.find({ parentId: null }), req.query)
-//       .filter()
-//       .sort()
-//       .search(modelName)
-//       .limitedFields();
-
-//     let filteredQuery = apiFeatures.mongooseQuery; // Get the filtered query
-//     let countDocuments = await filteredQuery.clone().countDocuments().maxTimeMS(30000); // Use clone to reuse the query for counting
-
-//     // Now paginate using the filtered count
-//     apiFeatures.paginate(countDocuments); // Call paginate after getting the count
-
-//     // Execute the query for the documents
-//     const { mongooseQuery, paginationResult } = apiFeatures;
-//     let document = await mongooseQuery;
-
-//     res.json({ countDocuments, paginationResult, document });
-//   });
-// };
-
-// const getAllSubcategories = (model, modelName) => {
-//   return catchError(async (req, res, next) => {
-//     // Apply filters, search, etc. but don't paginate yet.
-//     let apiFeatures = new ApiFeatures(model.find({ parentId: req.params.parentId }), req.query)
-//       .filter()
-//       .sort()
-//       .search(modelName)
-//       .limitedFields();
-
-//     let filteredQuery = apiFeatures.mongooseQuery; // Get the filtered query
-//     let countDocuments = await filteredQuery.clone().countDocuments().maxTimeMS(30000); // Use clone to reuse the query for counting
-
-//     // Now paginate using the filtered count
-//     apiFeatures.paginate(countDocuments); // Call paginate after getting the count
-
-//     // Execute the query for the documents
-//     const { mongooseQuery, paginationResult } = apiFeatures;
-//     let document = await mongooseQuery.populate({
-//       path: 'parentId',  // The field that contains the reference to the category
-//       select: 'name' // Select the fields you want to populate
-//     });
-
-//     res.json({ countDocuments, paginationResult, document });
-//   });
-// };
 
 const getOne = (model) => {
   return catchError(async (req, res, next) => {
