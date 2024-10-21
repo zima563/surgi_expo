@@ -95,7 +95,7 @@ const updateOne = (model) => {
             .replace(/[^a-zA-Z0-9_.]/g, ''); // Remove all special characters except letters, numbers, underscores, and dots
 
           const resizedFilename = "images-" + uuidv4() + encodeURIComponent(cleanedFilename);
-          const imgPath = path.join('uploads/', `image-${resizedFilename}`);
+          const imgPath = path.join('uploads/', resizedFilename);
 
           // Process each image
           await sharp(file.buffer)
@@ -171,7 +171,7 @@ const addOne = (model) => {
             .replace(/[^a-zA-Z0-9_.]/g, ''); // Remove all special characters except letters, numbers, underscores, and dots
 
           const resizedFilename = "images-" + uuidv4() + encodeURIComponent(cleanedFilename);
-          const imgPath = path.join('uploads/', `image-${resizedFilename}`);
+          const imgPath = path.join('uploads/', resizedFilename);
 
           // Process each image
           await sharp(file.buffer)
