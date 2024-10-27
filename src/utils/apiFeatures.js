@@ -1,17 +1,9 @@
 class ApiFeatures {
-  constructor(mongooseQuery, searchQuery) {
-    this.mongooseQuery = mongooseQuery;
+  constructor(prismaModel, searchQuery) {
+    this.prismaModel = prismaModel;
     this.searchQuery = searchQuery;
+    this.prismaQuery = { where: {} };
   }
-
-  //   pagination() {
-  //     if (this.searchQuery.page <= 0) return (this.searchQuery.page = 1);
-  //     let page = this.searchQuery.page * 1 || 1;
-  //     let limit = this.searchQuery.limit;
-  //     let skip = (page - 1) * limit;
-  //     this.mongooseQuery.skip(skip).limit(limit);
-  //     return this;
-  //   }
 
   filter() {
     let filterObj = { ...this.searchQuery };
@@ -20,77 +12,115 @@ class ApiFeatures {
       delete filterObj[val];
     });
 
-    filterObj = JSON.stringify(filterObj);
-    filterObj = filterObj.replace(/(gt|gte|lt|lte)/g, (match) => "$" + match);
-    filterObj = JSON.parse(filterObj);
-    this.mongooseQuery.find(filterObj);
+    // Add `parentId` to the query if it's provided in the search query
+    if (filterObj.parentId) {
+      this.prismaQuery.where.parentId = filterObj.parentId === 'null' ? null : filterObj.parentId;
+    }
+
+    // Add `categoryId` to the query if it's provided in the search query
+    if (filterObj.categoryId) {
+      this.prismaQuery.where.categoryId = parseInt(filterObj.categoryId, 10);
+    }
+
+    // Merge remaining filters
+    this.prismaQuery.where = { ...this.prismaQuery.where, ...filterObj };
     return this;
   }
 
   sort() {
-    if (this.searchQuery.sort) {
-      let sortBy = this.searchQuery.sort.split(",").join(" ");
-      this.mongooseQuery.sort(sortBy);
-    } else {
-      this.mongooseQuery = this.mongooseQuery.sort({ createdAt: 1 });
-    }
+    const sortBy = this.searchQuery.sort
+      ? this.searchQuery.sort.split(",").reduce((acc, field) => {
+        const [key, order] = field.split(":");
+        acc[key] = order === "desc" ? "desc" : "asc";
+        return acc;
+      }, {})
+      : { createdAt: 'asc' };
+    this.prismaQuery.orderBy = sortBy;
     return this;
   }
 
   limitedFields() {
     if (this.searchQuery.fields) {
-      let fields = this.searchQuery.fields.split(",").join(" ");
-      this.mongooseQuery.select(fields);
+      const fields = this.searchQuery.fields.split(",").map(field => field.trim());
+      this.prismaQuery.select = fields.reduce((acc, field) => {
+        acc[field] = true;
+        return acc;
+      }, {});
     } else {
-      this.mongooseQuery = this.mongooseQuery.select("-__v");
+      delete this.prismaQuery.select;
     }
     return this;
   }
 
   search(modelName) {
     if (this.searchQuery.keyword) {
-      let query = {};
+      const keyword = this.searchQuery.keyword.toLowerCase();
       if (modelName === "product") {
-        query.$or = [
-          { title: { $regex: this.searchQuery.keyword, $options: "i" } },
-          { description: { $regex: this.searchQuery.keyword, $options: "i" } },
-        ];
+        this.prismaQuery.where = {
+          OR: [
+            { title: { contains: keyword, mode: 'insensitive' } },
+            { description: { contains: keyword, mode: 'insensitive' } },
+          ],
+        };
       } else {
-        query = { name: { $regex: this.searchQuery.keyword, $options: "i" } };
+        this.prismaQuery.where = {
+          ...this.prismaQuery.where,
+          name: { contains: keyword, mode: 'insensitive' },
+        };
       }
-      if (!this.mongooseQuery) {
-        this.mongooseQuery = this.modelName.find();
-      }
-
-      this.mongooseQuery = this.mongooseQuery.find(query);
     }
     return this;
   }
 
-  paginate(countDocuments) {
+  async paginateWithCount(countDocuments) {
     const page = this.searchQuery.page * 1 || 1;
     const limit = this.searchQuery.limit * 1 || 50;
     const skip = (page - 1) * limit;
     const endIndex = page * limit;
 
-    // Pagination result
-    const pagination = {};
-    pagination.currentPage = page;
-    pagination.limit = limit;
-    pagination.numberOfPages = Math.ceil(countDocuments / limit);
+    // Store pagination details
+    this.paginationResult = {
+      currentPage: page,
+      limit,
+      numberOfPages: Math.ceil(countDocuments / limit),
+    };
 
-    // next page
+    // Add next/prev pages if applicable
     if (endIndex < countDocuments) {
-      pagination.next = page + 1;
+      this.paginationResult.next = page + 1;
     }
     if (skip > 0) {
-      pagination.prev = page - 1;
+      this.paginationResult.prev = page - 1;
     }
-    this.mongooseQuery = this.mongooseQuery.skip(skip).limit(limit);
 
-    this.paginationResult = pagination;
+    // Apply pagination to the Prisma query
+    this.prismaQuery.skip = skip;
+    this.prismaQuery.take = limit;
+
     return this;
+  }
+
+  async exec() {
+    // Remove select if it's empty
+    if (!this.prismaQuery.select) {
+      delete this.prismaQuery.select;
+    }
+
+    if (this.prismaQuery.where.categoryId) {
+      this.prismaQuery.where.categoryId = parseInt(this.prismaQuery.where.categoryId, 10);
+    }
+    if (this.prismaQuery.where.parentId) {
+      this.prismaQuery.where.parentId = parseInt(this.prismaQuery.where.parentId, 10);
+    }
+
+    // Execute the Prisma query
+    const result = await this.prismaModel.findMany(this.prismaQuery);
+
+    return {
+      result,
+      pagination: this.paginationResult,
+    };
   }
 }
 
-module.exports = ApiFeatures
+module.exports = ApiFeatures;

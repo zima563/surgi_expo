@@ -1,58 +1,63 @@
+const { PrismaClient } = require('@prisma/client');
 const productModel = require("../../../DB/model/product.model");
+const prisma = new PrismaClient();
 const catchError = require("../../middlewares/catchError");
 const ApiFeatures = require("../../utils/apiFeatures");
 const { addOne, getOne, updateOne, deleteOne } = require("../handlers/handler");
-const { protectRoutes } = require("../user/user.controller");
+const { parse } = require('path');
 
-const addProduct = addOne(productModel);
+
+const addProduct = addOne(prisma.product);
 
 const getProducts = catchError(async (req, res, next) => {
-    // const redisKey = `products:${JSON.stringify(req.query)}`; // Generate a unique key based on query parameters
-
-    // // Check if data exists in Redis cache
-    // let cachedData = await redisClient.get(redisKey);
-
-    // if (cachedData) {
-    //     // If cached data exists, return it
-    //     return res.json(JSON.parse(cachedData));
-    // }
-
-    // Apply filters, search, etc., but don't paginate yet
-    let apiFeatures = new ApiFeatures(productModel.find({ parentId: null }), req.query)
+    // Create an API features instance for filtering, sorting, and limiting fields
+    let apiFeatures = new ApiFeatures(prisma.product, req.query)
         .filter()
         .sort()
-        .search("category")
+        .search("product")
         .limitedFields();
 
-    let filteredQuery = apiFeatures.mongooseQuery; // Get the filtered query
-    let countDocuments = await filteredQuery.clone().countDocuments().maxTimeMS(30000); // Use clone to reuse the query for counting
+    // Count total documents matching the filters
+    const countDocuments = await prisma.product.count({
+        where: {
+            ...apiFeatures.prismaQuery.where,
+            categoryId: req.query.categoryId ? parseInt(req.query.categoryId) : undefined, // Use categoryId for filtering
+        },
+    });
 
-    // Now paginate using the filtered count
-    apiFeatures.paginate(countDocuments); // Call paginate after getting the count
+    // Handle pagination
+    apiFeatures.paginateWithCount(countDocuments); // Call paginate after getting the count
 
     // Execute the query for the documents
-    const { mongooseQuery, paginationResult } = apiFeatures;
-    let products = await mongooseQuery;
-    products = products.map(product => {
-        product.imgCover = process.env.MEDIA_BASE_URL + product.imgCover;
-        product.images = product.images.map(img => {
-            return process.env.MEDIA_BASE_URL + img;
-        })
-        return product;
-    })
+    const products = await apiFeatures.exec();
 
-    const response = { countDocuments, paginationResult, products };
+    // Create response object
+    const response = {
+        paginationResult: apiFeatures.paginationResult,
+        products: products.result.map(product => {
+            // Parse images, prepend URL, and stringify them back
+            const imageArray = JSON.parse(product.images); // Assuming images is a JSON string
+            const updatedImages = imageArray.map(img => process.env.MEDIA_BASE_URL + img);
+            const imgCover = process.env.MEDIA_BASE_URL + product.imgCover; // Update imgCover URL
 
-    // Store the response in Redis cache with a TTL (Time To Live) of 1 hour
-    // await redisClient.set(redisKey, JSON.stringify(response), 'EX', 3600); // 3600 seconds = 1 hour
+            return {
+                ...product,
+                imgCover,
+                images: updatedImages,
+            };
+        }),
+    };
 
+    // Send the response
     res.json(response);
 });
 
-const getProduct = getOne(productModel);
 
-const updateProduct = updateOne(productModel);
 
-const deleteProduct = deleteOne(productModel);
+const getProduct = getOne(prisma.product);
+
+const updateProduct = updateOne(prisma.product);
+
+const deleteProduct = deleteOne(prisma.product);
 
 module.exports = { addProduct, getProduct, getProducts, updateProduct, deleteProduct };

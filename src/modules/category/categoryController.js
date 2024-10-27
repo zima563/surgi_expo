@@ -1,97 +1,85 @@
+const { PrismaClient } = require('@prisma/client');
 const categoryModel = require("../../../DB/model/category.model");
+const prisma = new PrismaClient();
 // const redisClient = require("../../../DB/redis");
 const catchError = require("../../middlewares/catchError");
 const ApiFeatures = require("../../utils/apiFeatures");
 const { addOne, getOne, updateOne, deleteOne } = require("../handlers/handler");
 
-const addCategory = addOne(categoryModel);
+const addCategory = addOne(prisma.category);
 
 const getCategories = catchError(async (req, res, next) => {
-  // const redisKey = `categories:${JSON.stringify(req.query)}`; // Generate a unique key based on query parameters
-
-  // // Check if data exists in Redis cache
-  // let cachedData = await redisClient.get(redisKey);
-
-  // if (cachedData) {
-  //   // If cached data exists, return it
-  //   return res.json(JSON.parse(cachedData));
-  // }
-
-  // Apply filters, search, etc., but don't paginate yet
-  let apiFeatures = new ApiFeatures(categoryModel.find({ parentId: null }), req.query)
+  let apiFeatures = new ApiFeatures(prisma.category, { ...req.query, parentId: null })
     .filter()
-    .sort({ createdAt: -1 })
+    .sort()
     .search("category")
     .limitedFields();
 
-  let filteredQuery = apiFeatures.mongooseQuery; // Get the filtered query
-  let countDocuments = await filteredQuery.clone().countDocuments().maxTimeMS(30000); // Use clone to reuse the query for counting
+  // Get the count for pagination
+  const countDocuments = await prisma.category.count({
+    where: { parentId: null, ...apiFeatures.prismaQuery.where }, // Include the where conditions
+  });
 
-  // Now paginate using the filtered count
-  apiFeatures.paginate(countDocuments); // Call paginate after getting the count
+  await apiFeatures.paginateWithCount(countDocuments); // Call paginate after getting the count
 
   // Execute the query for the documents
-  const { mongooseQuery, paginationResult } = apiFeatures;
-  let categories = await mongooseQuery;
-  categories = categories.map(category => {
-    category.image = process.env.MEDIA_BASE_URL + category.image;
-    return category;
-  })
-  const response = { countDocuments, paginationResult, categories };
+  const categories = await apiFeatures.exec();
 
-  // Store the response in Redis cache with a TTL (Time To Live) of 1 hour
-  // await redisClient.set(redisKey, JSON.stringify(response), 'EX', 3600); // 3600 seconds = 1 hour
+  // Create the response object
+  const response = {
+    paginationResult: apiFeatures.paginationResult, // Include pagination details
+    categories: categories.result.map(category => ({
+      ...category,
+      image: process.env.MEDIA_BASE_URL + category.image, // Update image URL
+    })),
+  };
 
   res.json(response);
 });
 
 const getSubCategories = catchError(async (req, res, next) => {
-  // const redisKey = `subCategories:${req.params.parentId}:${JSON.stringify(req.query)}`; // Generate a unique key based on parentId and query parameters
-
-  // // Check if data exists in Redis cache
-  // let cachedData = await redisClient.get(redisKey);
-
-  // if (cachedData) {
-  //   // If cached data exists, return it
-  //   return res.json(JSON.parse(cachedData));
-  // }
-
-  // Apply filters, search, etc., but don't paginate yet
-  let apiFeatures = new ApiFeatures(categoryModel.find({ parentId: req.params.parentId }), req.query)
+  // Parse parentId as an integer or null if "null" is provided
+  const parentId = req.params.parentId === 'null' ? null : parseInt(req.params.parentId, 10);
+  // Initialize ApiFeatures with parentId from `req.params.id`
+  let apiFeatures = new ApiFeatures(prisma.category, { ...req.query, parentId })
     .filter()
-    .sort({ createdAt: -1 })
+    .sort()
     .search("category")
     .limitedFields();
 
-  let filteredQuery = apiFeatures.mongooseQuery; // Get the filtered query
-  let countDocuments = await filteredQuery.clone().countDocuments().maxTimeMS(30000); // Use clone to reuse the query for counting
 
-  // Now paginate using the filtered count
-  apiFeatures.paginate(countDocuments); // Call paginate after getting the count
 
-  // Execute the query for the documents
-  const { mongooseQuery, paginationResult } = apiFeatures;
-  let categories = await mongooseQuery;
-  categories = categories.map(category => {
-    category.image = process.env.MEDIA_BASE_URL + category.image;
-    return category;
-  })
-  // Create the response object
-  const response = { countDocuments, paginationResult, categories };
+  // Get the count of documents that match the `parentId`
+  const countDocuments = await prisma.category.count({
+    where: { parentId, ...apiFeatures.prismaQuery.where },
+  });
 
-  // Store the response in Redis cache with a TTL (Time To Live) of 1 hour
-  // await redisClient.set(redisKey, JSON.stringify(response), 'EX', 3600); // 3600 seconds = 1 hour
 
-  // Return the response
+  // Use the count for pagination
+  await apiFeatures.paginateWithCount(countDocuments);
+
+  // Execute the query to get categories
+  const categories = await apiFeatures.exec();
+
+  // Prepare the response
+  const response = {
+    paginationResult: apiFeatures.paginationResult,
+    categories: categories.result.map(category => ({
+      ...category,
+      image: process.env.MEDIA_BASE_URL + category.image,
+    })),
+  };
+
   res.json(response);
 });
 
 
-const getCategory = getOne(categoryModel);
 
-const updateCategory = updateOne(categoryModel);
+const getCategory = getOne(prisma.category);
 
-const deleteCategory = deleteOne(categoryModel);
+const updateCategory = updateOne(prisma.category);
+
+const deleteCategory = deleteOne(prisma.category);
 
 module.exports = {
   addCategory,

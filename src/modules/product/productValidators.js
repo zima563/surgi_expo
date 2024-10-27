@@ -42,11 +42,11 @@ const addProductVal = Joi.object({
 });
 
 const paramsVal = Joi.object({
-  id: Joi.string().length(24).hex().required(),
+  id: Joi.number().required(),
 });
 
 const updateProductVal = Joi.object({
-  id: Joi.string().length(24).hex().required(),
+  id: Joi.number().required(),
 
   title: Joi.string().min(2).max(100).optional().trim(),
   description: Joi.string().trim().optional().min(2).max(1000),

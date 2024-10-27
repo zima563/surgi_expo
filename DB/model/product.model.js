@@ -42,6 +42,7 @@ const schema = new mongoose.Schema(
 schema.post(/^find/, (doc) => {
     if (doc.imgCover || doc.images) {
         doc.imgCover = process.env.MEDIA_BASE_URL + doc.imgCover;
+        document.images = JSON.parse(document.images);
         doc.images = doc.images?.map((val) => process.env.MEDIA_BASE_URL + val);
     }
 });
