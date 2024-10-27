@@ -5,7 +5,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "resize": "node resize.js"
+    "resize": "node resize.js",
+    "maigrate" : "npx prisma migrate dev --name init"
   },
   "keywords": [],
   "author": "",
