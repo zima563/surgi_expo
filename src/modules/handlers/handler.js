@@ -183,6 +183,7 @@ const addOne = (model) => {
         })
       );
     }
+    let document = new model(req.body);
     await document.save();
     res.json(document);
   });
