@@ -1,6 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const categoryModel = require("../../../DB/model/category.model");
 const prisma = new PrismaClient();
+// const redisClient = require("../../../DB/redis");
 const catchError = require("../../middlewares/catchError");
 const ApiFeatures = require("../../utils/apiFeatures");
 const { addOne, getOne, updateOne, deleteOne } = require("../handlers/handler");
@@ -14,25 +15,28 @@ const getCategories = catchError(async (req, res, next) => {
     .search("category")
     .limitedFields();
 
+  // Get the count for pagination
   const countDocuments = await prisma.category.count({
-    where: { parentId: null, ...apiFeatures.prismaQuery.where },
+    where: { parentId: null, ...apiFeatures.prismaQuery.where }, // Include the where conditions
   });
 
-  await apiFeatures.paginateWithCount(countDocuments);
+  await apiFeatures.paginateWithCount(countDocuments); // Call paginate after getting the count
 
-  const categories = await prisma.category.findMany({
-    where: apiFeatures.prismaQuery.where,
-    select: {
-      categoryId: true, // Include categoryId
-      ...apiFeatures.prismaQuery.select,
-    },
-  });
+  // Execute the query for the documents
+  const categories = await apiFeatures.exec(
+    {
+      include: {
+        parentId: true, // Include parent category data
+      },
+    }
+  );
 
+  // Create the response object
   const response = {
-    paginationResult: apiFeatures.paginationResult,
-    categories: categories.map(category => ({
+    paginationResult: apiFeatures.paginationResult, // Include pagination details
+    categories: categories.result.map(category => ({
       ...category,
-      image: process.env.MEDIA_BASE_URL + category.image,
+      image: process.env.MEDIA_BASE_URL + category.image, // Update image URL
     })),
   };
 
@@ -40,31 +44,39 @@ const getCategories = catchError(async (req, res, next) => {
 });
 
 const getSubCategories = catchError(async (req, res, next) => {
+  // Parse parentId as an integer or null if "null" is provided
   const parentId = req.params.parentId === 'null' ? null : parseInt(req.params.parentId, 10);
-
+  // Initialize ApiFeatures with parentId from `req.params.id`
   let apiFeatures = new ApiFeatures(prisma.category, { ...req.query, parentId })
     .filter()
     .sort()
     .search("category")
     .limitedFields();
 
+
+
+  // Get the count of documents that match the `parentId`
   const countDocuments = await prisma.category.count({
     where: { parentId, ...apiFeatures.prismaQuery.where },
   });
 
+
+  // Use the count for pagination
   await apiFeatures.paginateWithCount(countDocuments);
 
-  const categories = await prisma.category.findMany({
-    where: apiFeatures.prismaQuery.where,
-    select: {
-      categoryId: true, // Include categoryId
-      ...apiFeatures.prismaQuery.select,
-    },
-  });
+  // Execute the query to get categories
+  const categories = await apiFeatures.exec(
+    {
+      include: {
+        parentId: true, // Include parent category data
+      },
+    }
+  );
 
+  // Prepare the response
   const response = {
     paginationResult: apiFeatures.paginationResult,
-    categories: categories.map(category => ({
+    categories: categories.result.map(category => ({
       ...category,
       image: process.env.MEDIA_BASE_URL + category.image,
     })),
@@ -72,6 +84,8 @@ const getSubCategories = catchError(async (req, res, next) => {
 
   res.json(response);
 });
+
+
 
 const getCategory = getOne(prisma.category);
 
