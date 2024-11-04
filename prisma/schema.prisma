@@ -14,12 +14,13 @@ generator client {
 }
 
 model Category {
-  id        Int      @id @default(autoincrement())
-  name      String
-  slug      String   @db.VarChar(100)
-  image     String
-  createdAt DateTime @default(now())
-  parentId  Int? // Foreign key to the parent category
+  id          Int      @id @default(autoincrement())
+  name        String
+  slug        String   @db.VarChar(100)
+  image       String
+  description String   @db.VarChar(1000)
+  createdAt   DateTime @default(now())
+  parentId    Int? // Foreign key to the parent category
 
   parentCategory Category?  @relation("CategoryToParent", fields: [parentId], references: [id])
   subCategories  Category[] @relation("CategoryToParent")
