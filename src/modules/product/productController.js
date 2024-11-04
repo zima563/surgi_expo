@@ -11,6 +11,9 @@ const addProduct = addOne(prisma.product);
 
 const getProducts = catchError(async (req, res, next) => {
     // Create an API features instance for filtering, sorting, and limiting fields
+    if (req.query.categoryId) {
+        req.query.categoryId = parseInt(req.query.categoryId, 10)
+    }
     let apiFeatures = new ApiFeatures(prisma.product, req.query)
         .filter()
         .sort()
