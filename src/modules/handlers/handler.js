@@ -43,7 +43,9 @@ const updateOne = (model) => {
         fs.unlinkSync(filePath); // Delete the file
       }
     };
-
+    if (req.body.parentId) {
+      req.body.parentId = parseInt(req.body.parentId, 10);
+    }
     // Process single image
     if (req.file) {
       let cleanedFilename = req.file.originalname
