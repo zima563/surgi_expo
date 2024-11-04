@@ -204,28 +204,55 @@ const addOne = (model) => {
 
 
 
-const getOne = (model) => {
+const getOne = (model, modelName) => {
   return catchError(async (req, res, next) => {
-    const document = await model.findUnique({
-      where: {
-        id: parseInt(req.params.id), // Assuming 'id' is of type Int in Prisma
-      },
-    });
+    if (modelName === "category") {
+      const document = await model.findUnique({
+        where: {
+          id: parseInt(req.params.id), // Assuming 'id' is of type Int in Prisma
+        },
+      });
 
-    if (document.image) {
-      document.image = process.env.MEDIA_BASE_URL + document.image;
-    }
-    if (document.imgCover) {
-      document.imgCover = process.env.MEDIA_BASE_URL + document.imgCover;
-      // Parse images, prepend URL, and stringify them back
-      const imageArray = JSON.parse(document.images); // Assuming images is a JSON string
-      document.images = imageArray.map(img => process.env.MEDIA_BASE_URL + img);
-    }
-    if (!document) {
-      return next(new apiError("Document not found", 404));
+      if (document.image) {
+        document.image = process.env.MEDIA_BASE_URL + document.image;
+      }
+      if (document.imgCover) {
+        document.imgCover = process.env.MEDIA_BASE_URL + document.imgCover;
+        // Parse images, prepend URL, and stringify them back
+        const imageArray = JSON.parse(document.images); // Assuming images is a JSON string
+        document.images = imageArray.map(img => process.env.MEDIA_BASE_URL + img);
+      }
+      if (!document) {
+        return next(new apiError("Document not found", 404));
+      }
+
+      return res.json(document);
+    } else {
+      const document = await model.findUnique({
+        where: {
+          id: parseInt(req.params.id), // Assuming 'id' is of type Int in Prisma
+        },
+        include: {
+          category: true
+        }
+      });
+
+      if (document.image) {
+        document.image = process.env.MEDIA_BASE_URL + document.image;
+      }
+      if (document.imgCover) {
+        document.imgCover = process.env.MEDIA_BASE_URL + document.imgCover;
+        // Parse images, prepend URL, and stringify them back
+        const imageArray = JSON.parse(document.images); // Assuming images is a JSON string
+        document.images = imageArray.map(img => process.env.MEDIA_BASE_URL + img);
+      }
+      if (!document) {
+        return next(new apiError("Document not found", 404));
+      }
+
+      return res.json(document);
     }
 
-    return res.json(document);
   });
 };
 

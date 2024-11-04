@@ -110,7 +110,7 @@ class ApiFeatures {
       };
     } else if (modelName === "product") {
       this.prismaQuery.include = {
-        categoryId: true,
+        category: true,
       };
     }
 

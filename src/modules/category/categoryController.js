@@ -116,7 +116,7 @@ const getSubCategoriesAll = catchError(async (req, res, next) => {
   res.json(response);
 });
 
-const getCategory = getOne(prisma.category);
+const getCategory = getOne(prisma.category, "category");
 
 const updateCategory = updateOne(prisma.category);
 

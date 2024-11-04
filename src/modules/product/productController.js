@@ -58,7 +58,7 @@ const getProducts = catchError(async (req, res, next) => {
 
 
 
-const getProduct = getOne(prisma.product);
+const getProduct = getOne(prisma.product, "product");
 
 const updateProduct = updateOne(prisma.product);
 
