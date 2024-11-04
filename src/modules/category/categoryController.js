@@ -81,7 +81,7 @@ const getSubCategories = catchError(async (req, res, next) => {
 
 const getSubCategoriesAll = catchError(async (req, res, next) => {
   // Initialize ApiFeatures with parentId from `req.params.id` if provided
-  let apiFeatures = new ApiFeatures(prisma.category, { ...req.query })
+  let apiFeatures = new ApiFeatures(prisma.category, { ...req.query, parentId: { not: null } })
     .filter()
     .sort()
     .search("category")
