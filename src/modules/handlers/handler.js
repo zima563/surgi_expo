@@ -237,7 +237,9 @@ const getOne = (model, modelName) => {
         },
         include: {
           category: true,
-          parentId: true
+          include: {
+            parentCategory: true
+          }
         }
       });
 
