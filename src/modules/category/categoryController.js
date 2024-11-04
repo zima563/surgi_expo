@@ -44,8 +44,8 @@ const getCategories = catchError(async (req, res, next) => {
 });
 
 const getSubCategories = catchError(async (req, res, next) => {
-  // Parse parentId as an integer or null if "null" is provided
-  const parentId = req.params.parentId === null ? null : parseInt(req.params.parentId, 10);
+  // Parse `parentId` as an integer or set it to `undefined` if not provided
+  const parentId = req.params.parentId ? parseInt(req.params.parentId, 10) : undefined;
   // Initialize ApiFeatures with parentId from `req.params.id`
   let apiFeatures = new ApiFeatures(prisma.category, { ...req.query, parentId })
     .filter()
@@ -54,10 +54,12 @@ const getSubCategories = catchError(async (req, res, next) => {
     .limitedFields();
 
 
+  // Adjust the `where` clause based on the `parentId` condition
+  const whereClause = parentId !== undefined ? { parentId } : { parentId: { not: null } };
 
   // Get the count of documents that match the `parentId`
   const countDocuments = await prisma.category.count({
-    where: { parentId, ...apiFeatures.prismaQuery.where },
+    where: { ...whereClause, ...apiFeatures.prismaQuery.where },
   });
 
 
