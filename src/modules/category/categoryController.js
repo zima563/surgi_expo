@@ -102,7 +102,7 @@ const getSubCategoriesAll = catchError(async (req, res, next) => {
   await apiFeatures.paginateWithCount(countDocuments);
 
   // Execute the query to get categories with `parentId` not null
-  const categories = await apiFeatures.exec("category", { where: baseWhereCondition });
+  const categories = await apiFeatures.exec("category");
 
   // Prepare the response
   const response = {

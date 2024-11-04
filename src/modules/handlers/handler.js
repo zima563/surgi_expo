@@ -133,8 +133,7 @@ const addOne = (model) => {
     const newDocumentData = { ...req.body };
     // Convert parentId to integer if it exists
     if (req.body.parentId) {
-      const parentId = parseInt(req.body.parentId, 10);
-      newDocumentData.parentId = !isNaN(parentId) ? parentId : null; // Handle invalid value
+      newDocumentData.parentId = req.body.parentId ? req.body.parentId : null; // Handle invalid value
     }
     // Process single image
     if (req.file) {
