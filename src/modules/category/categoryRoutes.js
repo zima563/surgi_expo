@@ -6,6 +6,7 @@ const {
   getCategory,
   updateCategory,
   getSubCategories,
+  getSubCategoriesAll,
 } = require("./categoryController.js");
 const {
   addCategoryVal,
@@ -27,10 +28,8 @@ categoryRouter
   )
   .get(getCategories);
 
+categoryRouter.route("/subcategories/all").get(getSubCategoriesAll)
 categoryRouter.route("/sub/:parentId").get(getSubCategories);
-categoryRouter.route("/sub/all").get(getSubCategories);
-
-
 
 categoryRouter
   .route("/:id")

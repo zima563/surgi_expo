@@ -15,7 +15,7 @@ class ApiFeatures {
     // Handle `parentId` in the query
     if (filterObj.parentId !== undefined) {
       // Filter for a specific `parentId` if provided
-      this.prismaQuery.where.parentId = filterObj.parentId === 'null' ? null : parseInt(filterObj.parentId, 10);
+      this.prismaQuery.where.parentId = filterObj.parentId === "null" ? null : parseInt(filterObj.parentId, 10);
     } else {
       // If `parentId` is not provided, exclude items with a `null` parentId
       this.prismaQuery.where.parentId = { not: null };

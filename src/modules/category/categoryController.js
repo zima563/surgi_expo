@@ -44,8 +44,8 @@ const getCategories = catchError(async (req, res, next) => {
 });
 
 const getSubCategories = catchError(async (req, res, next) => {
-  // Parse `parentId` as an integer or set it to `undefined` if not provided
-  const parentId = req.params.parentId ? parseInt(req.params.parentId, 10) : undefined;
+  // Parse parentId as an integer or null if "null" is provided
+  const parentId = req.params.parentId === 'null' ? null : parseInt(req.params.parentId, 10);
   // Initialize ApiFeatures with parentId from `req.params.id`
   let apiFeatures = new ApiFeatures(prisma.category, { ...req.query, parentId })
     .filter()
@@ -54,12 +54,10 @@ const getSubCategories = catchError(async (req, res, next) => {
     .limitedFields();
 
 
-  // Adjust the `where` clause based on the `parentId` condition
-  const whereClause = parentId !== undefined ? { parentId } : { parentId: { not: null } };
 
   // Get the count of documents that match the `parentId`
   const countDocuments = await prisma.category.count({
-    where: { ...whereClause, ...apiFeatures.prismaQuery.where },
+    where: { parentId, ...apiFeatures.prismaQuery.where },
   });
 
 
@@ -81,7 +79,42 @@ const getSubCategories = catchError(async (req, res, next) => {
   res.json(response);
 });
 
+const getSubCategoriesAll = catchError(async (req, res, next) => {
+  // Initialize ApiFeatures with parentId from `req.params.id` if provided
+  let apiFeatures = new ApiFeatures(prisma.category, { ...req.query })
+    .filter()
+    .sort()
+    .search("category")
+    .limitedFields();
 
+  // Define the base where condition to only get categories with `parentId` not null
+  const baseWhereCondition = {
+    parentId: { not: null },
+    ...apiFeatures.prismaQuery.where,
+  };
+
+  // Get the count of documents that match the `parentId` condition
+  const countDocuments = await prisma.category.count({
+    where: baseWhereCondition,
+  });
+
+  // Use the count for pagination
+  await apiFeatures.paginateWithCount(countDocuments);
+
+  // Execute the query to get categories with `parentId` not null
+  const categories = await apiFeatures.exec("category", { where: baseWhereCondition });
+
+  // Prepare the response
+  const response = {
+    paginationResult: apiFeatures.paginationResult,
+    categories: categories.result.map(category => ({
+      ...category,
+      image: process.env.MEDIA_BASE_URL + category.image,
+    })),
+  };
+
+  res.json(response);
+});
 
 const getCategory = getOne(prisma.category);
 
@@ -96,4 +129,5 @@ module.exports = {
   getCategory,
   updateCategory,
   deleteCategory,
+  getSubCategoriesAll
 };
