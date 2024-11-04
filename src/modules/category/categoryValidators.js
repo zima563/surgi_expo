@@ -26,8 +26,8 @@ const paramsIdVal = Joi.object({
 const updateCategoryVal = Joi.object({
   id: Joi.number().required(),
 
-  name: Joi.string().min(2).max(20).trim(),
-  description: Joi.string().min(10).max(500).trim().optional(),
+  name: Joi.string().min(2).max(100).trim(),
+  description: Joi.string().min(10).max(1500).trim().optional(),
   parentId: Joi.number().optional(),
   image: Joi.object({
     fieldname: Joi.string().required(),
