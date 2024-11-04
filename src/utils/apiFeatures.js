@@ -105,7 +105,7 @@ class ApiFeatures {
     // Adjust where conditions based on the model
     if (modelName === "category") {
       this.prismaQuery.include = {
-        parentCategory: true, // Use `parentCategory` instead of `parentId`
+        parentCategory: true,
       };
     } else if (modelName === "product") {
       this.prismaQuery.include = {
