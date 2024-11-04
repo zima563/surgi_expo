@@ -65,13 +65,7 @@ const getSubCategories = catchError(async (req, res, next) => {
   await apiFeatures.paginateWithCount(countDocuments);
 
   // Execute the query to get categories
-  const categories = await apiFeatures.exec(
-    {
-      include: {
-        parentId: true, // Include parent category data
-      },
-    }
-  );
+  const categories = await apiFeatures.exec("category")
 
   // Prepare the response
   const response = {

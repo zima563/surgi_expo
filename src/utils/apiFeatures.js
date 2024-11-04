@@ -14,7 +14,7 @@ class ApiFeatures {
 
     // Add `parentId` to the query if it's provided in the search query
     if (filterObj.parentId) {
-      this.prismaQuery.where.parentId = filterObj.parentId === 'null' ? null : filterObj.parentId;
+      this.prismaQuery.where.parentId = filterObj.parentId === 'null' ? null : parseInt(filterObj.parentId, 10);
     }
 
     // Add `categoryId` to the query if it's provided in the search query
@@ -78,14 +78,12 @@ class ApiFeatures {
     const skip = (page - 1) * limit;
     const endIndex = page * limit;
 
-    // Store pagination details
     this.paginationResult = {
       currentPage: page,
       limit,
       numberOfPages: Math.ceil(countDocuments / limit),
     };
 
-    // Add next/prev pages if applicable
     if (endIndex < countDocuments) {
       this.paginationResult.next = page + 1;
     }
@@ -93,28 +91,31 @@ class ApiFeatures {
       this.paginationResult.prev = page - 1;
     }
 
-    // Apply pagination to the Prisma query
     this.prismaQuery.skip = skip;
     this.prismaQuery.take = limit;
 
     return this;
   }
 
-  async exec() {
-    // Remove select if it's empty
+  async exec(modelName) {
     if (!this.prismaQuery.select) {
       delete this.prismaQuery.select;
     }
 
-    if (this.prismaQuery.where.categoryId) {
-      this.prismaQuery.where.categoryId = parseInt(this.prismaQuery.where.categoryId, 10);
-    }
-    if (this.prismaQuery.where.parentId) {
-      this.prismaQuery.where.parentId = parseInt(this.prismaQuery.where.parentId, 10);
+    // Adjust where conditions based on the model
+    if (modelName === "category") {
+      this.prismaQuery.include = {
+        parentCategory: true, // Use `parentCategory` instead of `parentId`
+      };
+    } else if (modelName === "product") {
+      this.prismaQuery.include = {
+        category: true,
+      };
     }
 
-    // Execute the Prisma query
-    const result = await this.prismaModel.findMany(this.prismaQuery);
+    const result = await this.prismaModel.findMany({
+      ...this.prismaQuery,
+    });
 
     return {
       result,

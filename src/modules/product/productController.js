@@ -29,13 +29,7 @@ const getProducts = catchError(async (req, res, next) => {
     apiFeatures.paginateWithCount(countDocuments); // Call paginate after getting the count
 
     // Execute the query for the documents
-    const products = await apiFeatures.exec(
-        {
-            include: {
-                categoryId: true, // Include parent category data
-            },
-        }
-    );
+    const products = await apiFeatures.exec("product");
 
     // Create response object
     const response = {
@@ -52,6 +46,7 @@ const getProducts = catchError(async (req, res, next) => {
                 images: updatedImages,
             };
         }),
+
     };
 
     // Send the response
