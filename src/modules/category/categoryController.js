@@ -45,7 +45,7 @@ const getCategories = catchError(async (req, res, next) => {
 
 const getSubCategories = catchError(async (req, res, next) => {
   // Parse parentId as an integer or null if "null" is provided
-  const parentId = req.params.parentId === 'null' ? null : parseInt(req.params.parentId, 10);
+  const parentId = req.params.parentId === null ? null : parseInt(req.params.parentId, 10);
   // Initialize ApiFeatures with parentId from `req.params.id`
   let apiFeatures = new ApiFeatures(prisma.category, { ...req.query, parentId })
     .filter()
