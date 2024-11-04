@@ -28,7 +28,7 @@ categoryRouter
   .get(getCategories);
 
 categoryRouter.route("/sub/:parentId").get(getSubCategories);
-categoryRouter.route("/sub").get(getSubCategories);
+categoryRouter.route("/sub/all").get(getSubCategories);
 
 
 
