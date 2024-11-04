@@ -211,6 +211,9 @@ const getOne = (model, modelName) => {
         where: {
           id: parseInt(req.params.id), // Assuming 'id' is of type Int in Prisma
         },
+        include: {
+          parentCategory: true
+        }
       });
 
       if (document.image) {
