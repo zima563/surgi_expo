@@ -18,7 +18,7 @@ CREATE TABLE `product` (
     `title` VARCHAR(191) NOT NULL,
     `slug` VARCHAR(100) NOT NULL,
     `description` VARCHAR(1000) NOT NULL,
-    `brief` VARCHAR(191) NULL,
+    `brief` VARCHAR(1000) NULL,
     `imgCover` VARCHAR(191) NULL,
     `images` TEXT NULL,
     `categoryId` INTEGER NULL,

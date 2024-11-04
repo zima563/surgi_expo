@@ -36,7 +36,7 @@ model Product {
   title       String   @unique @db.VarChar(191)
   slug        String   @db.VarChar(100)
   description String   @db.VarChar(1000)
-  brief       String?
+  brief       String?  @db.VarChar(1000)
   imgCover    String?
   images      String?  @db.Text // Use Text type for large JSON data
   categoryId  Int?     @db.Int
