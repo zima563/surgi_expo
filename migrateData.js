@@ -29,6 +29,7 @@ async function migrateData() {
             await prisma.category.create({
                 data: {
                     name: category.name,
+                    slug: category.slug,
                     image: category.image,
                     description: category.description,
                     parentId: category.parentId ? parseInt(category.parentId) : null,

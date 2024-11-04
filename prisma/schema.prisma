@@ -16,6 +16,7 @@ generator client {
 model Category {
   id        Int      @id @default(autoincrement())
   name      String
+  slug      String   @db.VarChar(100)
   image     String
   createdAt DateTime @default(now())
   parentId  Int? // Foreign key to the parent category
