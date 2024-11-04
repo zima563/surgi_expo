@@ -12,9 +12,13 @@ class ApiFeatures {
       delete filterObj[val];
     });
 
-    // Add `parentId` to the query if it's provided in the search query
-    if (filterObj.parentId) {
+    // Handle `parentId` in the query
+    if (filterObj.parentId !== undefined) {
+      // Filter for a specific `parentId` if provided
       this.prismaQuery.where.parentId = filterObj.parentId === 'null' ? null : parseInt(filterObj.parentId, 10);
+    } else {
+      // If `parentId` is not provided, exclude items with a `null` parentId
+      this.prismaQuery.where.parentId = { not: null };
     }
 
     // Add `categoryId` to the query if it's provided in the search query
@@ -26,6 +30,7 @@ class ApiFeatures {
     this.prismaQuery.where = { ...this.prismaQuery.where, ...filterObj };
     return this;
   }
+
 
   sort() {
     const sortBy = this.searchQuery.sort
