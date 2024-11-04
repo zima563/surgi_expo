@@ -236,10 +236,11 @@ const getOne = (model, modelName) => {
           id: parseInt(req.params.id), // Assuming 'id' is of type Int in Prisma
         },
         include: {
-          category: true,
-          include: {
-            parentCategory: true
-          }
+          category: {
+            include: {
+              parentCategory: true
+            }
+          },
         }
       });
 
