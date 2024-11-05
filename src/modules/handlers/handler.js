@@ -140,6 +140,7 @@ const addOne = (model) => {
 
     if (req.body.category) {
       newDocumentData.category = parseInt(req.body.category, 10);
+      console.log(req.body.category);
     }
     // Process single image
     if (req.file) {
