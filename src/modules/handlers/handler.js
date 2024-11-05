@@ -137,6 +137,10 @@ const addOne = (model) => {
     if (req.body.parentId) {
       newDocumentData.parentId = parseInt(req.body.parentId, 10); // Handle invalid value
     }
+
+    if (req.body.category) {
+      newDocumentData.category = parseInt(req.body.category, 10);
+    }
     // Process single image
     if (req.file) {
       let cleanedFilename = req.file.originalname
