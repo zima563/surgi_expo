@@ -4,7 +4,7 @@ const addProductVal = Joi.object({
   title: Joi.string().min(2).max(100).required().trim(),
   description: Joi.string().trim().required().min(2).max(1000),
   brief: Joi.string().trim().required().min(2).max(1000),
-  category: Joi.string().length(24).hex().required(),
+  category: Joi.number().required(),
   imgCover: Joi.array()
     .items(
       Joi.object({
@@ -51,7 +51,7 @@ const updateProductVal = Joi.object({
   title: Joi.string().min(2).max(100).optional().trim(),
   description: Joi.string().trim().optional().min(2).max(1000),
   brief: Joi.string().trim().min(2).max(1000),
-  category: Joi.string().length(24).hex(),
+  category: Joi.number().optional(),
   imgCover: Joi.array().items(
     Joi.object({
       fieldname: Joi.string().required(),
