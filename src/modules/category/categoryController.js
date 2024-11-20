@@ -21,6 +21,7 @@ const getCategories = catchError(async (req, res, next) => {
   });
 
   await apiFeatures.paginateWithCount(countDocuments); // Call paginate after getting the count
+  console.log(process.env.MEDIA_BASE_URL);
 
   // Execute the query for the documents
   const categories = await apiFeatures.exec(
