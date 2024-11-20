@@ -21,7 +21,6 @@ const getCategories = catchError(async (req, res, next) => {
   });
 
   await apiFeatures.paginateWithCount(countDocuments); // Call paginate after getting the count
-  console.log(process.env.MEDIA_BASE_URL);
 
   // Execute the query for the documents
   const categories = await apiFeatures.exec(
@@ -37,7 +36,7 @@ const getCategories = catchError(async (req, res, next) => {
     paginationResult: apiFeatures.paginationResult, // Include pagination details
     categories: categories.result.map(category => ({
       ...category,
-      image: process.env.MEDIA_BASE_URL + category.image, // Update image URL
+      image: "https://media.web.surgi-expo.com/" + category.image, // Update image URL
     })),
   };
 
