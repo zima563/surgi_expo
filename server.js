@@ -13,7 +13,7 @@ const port = 3000
 dotenv.config();
 
 // dbConnection();
-app.use("/", express.static("uploads"));
+app.use("/", express.static("/uploads"));
 app.use(compression());
 app.use(express.json())
 app.use(cors())
