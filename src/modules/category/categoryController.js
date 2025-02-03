@@ -36,7 +36,7 @@ const getCategories = catchError(async (req, res, next) => {
     paginationResult: apiFeatures.paginationResult, // Include pagination details
     categories: categories.result.map(category => ({
       ...category,
-      image: "https://media.web.surgi-expo.com/" + category.image, // Update image URL
+      image: "https://media.surgi-expo.com/" + category.image, // Update image URL
     })),
   };
 
