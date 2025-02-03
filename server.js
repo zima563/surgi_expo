@@ -7,7 +7,7 @@ const { login } = require('./src/modules/user/user.controller');
 const compression = require('compression')
 
 const app = express()
-const port = 3000
+
 
 
 dotenv.config();
@@ -20,4 +20,4 @@ app.use(cors())
 
 bootstrap(app)
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+app.listen(process.env.PORT, () => console.log(`Example app listening on port ${process.env.PORT}!`))
