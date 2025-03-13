@@ -16,7 +16,7 @@ dotenv.config();
 app.use("/", express.static("uploads"));
 app.use(compression());
 app.use(express.json())
-app.use(cors({ origin: process.env.URL }))
+app.use(cors())
 
 bootstrap(app)
 
