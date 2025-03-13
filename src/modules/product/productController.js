@@ -24,7 +24,7 @@ const getProducts = catchError(async (req, res, next) => {
     const countDocuments = await prisma.product.count({
         where: {
             ...apiFeatures.prismaQuery.where,
-            categoryId: req.query.category ? parseInt(req.query.category) : undefined, // Use categoryId for filtering
+            categoryId: req.query.categoryId ? parseInt(req.query.categoryId) : undefined, // Use categoryId for filtering
         },
     });
 
