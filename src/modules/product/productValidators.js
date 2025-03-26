@@ -3,7 +3,7 @@ const Joi = require("joi");
 const addProductVal = Joi.object({
   title: Joi.string().min(2).max(100).required().trim(),
   description: Joi.string().trim().required().min(2).max(1000),
-  brief: Joi.string().trim().required().min(2).max(1000),
+  brief: Joi.string().trim().required().min(2).max(2000),
   category: Joi.number().required(),
   imgCover: Joi.array()
     .items(
